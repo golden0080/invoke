@@ -1,4 +1,5 @@
 import copy
+import os
 
 try:
     from ..vendor.lexicon import Lexicon
@@ -410,6 +411,38 @@ class ParseMachine(StateMachine):
 
     def error(self, msg):
         raise ParseError(msg, self.context)
+
+
+SENTINEL_DIRECTORY = '/'
+INVRC_FILENAME = '.inv_rc'
+DEFAULT_ROOT = None
+
+
+class InvokeInitFileParser(object):
+    def __init__(self):
+        pass
+
+    def parse(self):
+        current_dir = os.getcwd()
+        while True:
+            fname = os.path.join(current_dir, INVRC_FILENAME)
+            exists = os.path.isfile(fname)
+            debug("Checking init file: %s" % fname)
+            if exists:
+                try:
+                    fh = open(fname, 'r')
+                    line = fh.readline()
+                    if line.isspace():
+                        break
+                    return line.strip()
+                finally:
+                    fh.close()
+
+            current_dir = os.path.dirname(os.path.normpath(current_dir))
+            if current_dir == SENTINEL_DIRECTORY:
+                break
+
+        return DEFAULT_ROOT
 
 
 class ParseResult(list):

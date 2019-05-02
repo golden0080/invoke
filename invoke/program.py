@@ -11,7 +11,7 @@ from .util import six
 
 from . import Collection, Config, Executor, FilesystemLoader
 from .completion.complete import complete, print_completion_script
-from .parser import Parser, ParserContext, Argument
+from .parser import Parser, InvokeInitFileParser, ParserContext, Argument
 from .exceptions import UnexpectedExit, CollectionNotFound, ParseError, Exit
 from .terminals import pty_size
 from .util import debug, enable_logging, helpline
@@ -348,6 +348,7 @@ class Program(object):
             # self.tasks (the tasks requested for exec and their own
             # args/flags)
             self.parse_core(argv)
+            # Parse `.inv_rc` file for default search root
             # Handle collection concerns including project config
             self.parse_collection()
             # Parse remainder of argv as task-related input
@@ -645,6 +646,17 @@ class Program(object):
         self.core = parser.parse_argv(self.argv[1:])
         msg = "Core-args parse result: {!r} & unparsed: {!r}"
         debug(msg.format(self.core, self.core.unparsed))
+
+        if self.args['search-root'].value:
+            return
+
+        debug("Parsing init file (.inv_rc)")
+        initParser = InvokeInitFileParser()
+        init_root = initParser.parse()
+        debug("Init file has root: %s" % init_root)
+        if init_root:
+            debug("Init file: root = %s" % init_root)
+            self.args["search-root"].value = init_root
 
     def load_collection(self):
         """

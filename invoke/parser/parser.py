@@ -423,7 +423,8 @@ class InvokeInitFileParser(object):
         pass
 
     def parse(self):
-        current_dir = os.getcwd()
+        initial_dir = os.getcwd()
+        current_dir = initial_dir
         while True:
             fname = os.path.join(current_dir, INVRC_FILENAME)
             exists = os.path.isfile(fname)
@@ -432,10 +433,11 @@ class InvokeInitFileParser(object):
                 try:
                     fh = open(fname, 'r')
                     line = fh.readline()
+                    current_dir = os.path.abspath(current_dir)
                     if len(line) == 0 or line.isspace():
                         debug("Empty init file: %s" % fname)
-                        return os.path.abspath(current_dir)
-                    return os.path.abspath(line.strip())
+                        return current_dir, os.path.abspath(current_dir)
+                    return current_dir, os.path.abspath(os.path.join(current_dir, line.strip()))
                 finally:
                     fh.close()
 
@@ -443,7 +445,7 @@ class InvokeInitFileParser(object):
             if current_dir == SENTINEL_DIRECTORY:
                 break
 
-        return DEFAULT_ROOT
+        return initial_dir, DEFAULT_ROOT
 
 
 class ParseResult(list):

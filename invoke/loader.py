@@ -126,9 +126,10 @@ class FilesystemLoader(Loader):
         # Add init rc file in parents
         debug("Parsing init file (.inv_rc)")
         initParser = InvokeInitFileParser()
-        init_root = initParser.parse()
+        init_dir, init_root = initParser.parse()
         debug("Init file has root: %s" % init_root)
         if init_root:
+            sys.path.append(init_dir)
             parents.append(init_root)
 
         # Use find_module with our list of parents. ImportError from

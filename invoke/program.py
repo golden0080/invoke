@@ -618,7 +618,7 @@ class Program(object):
         return ParserContext(args=args)
 
     def print_version(self):
-        print("{} {}".format(self.name, self.version or "unknown"))
+        print("{} {}-gh".format(self.name, self.version or "unknown"))
 
     def print_help(self):
         usage_suffix = "task1 [--task1-opts] ... taskN [--taskN-opts]"

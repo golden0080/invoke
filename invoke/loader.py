@@ -5,6 +5,7 @@ import imp
 from . import Config
 from .exceptions import CollectionNotFound
 from .util import debug
+from .parser import InvokeInitFileParser
 
 
 class Loader(object):
@@ -121,6 +122,15 @@ class FilesystemLoader(Loader):
         # Make sure we haven't got duplicates on the end
         if parents[-1] == parents[-2]:
             parents = parents[:-1]
+
+        # Add init rc file in parents
+        debug("Parsing init file (.inv_rc)")
+        initParser = InvokeInitFileParser()
+        init_root = initParser.parse()
+        debug("Init file has root: %s" % init_root)
+        if init_root:
+            parents.append(init_root)
+
         # Use find_module with our list of parents. ImportError from
         # find_module means "couldn't find" not "found and couldn't import" so
         # we turn it into a more obvious exception class.

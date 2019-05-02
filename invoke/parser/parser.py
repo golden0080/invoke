@@ -432,9 +432,10 @@ class InvokeInitFileParser(object):
                 try:
                     fh = open(fname, 'r')
                     line = fh.readline()
-                    if line.isspace():
-                        break
-                    return line.strip()
+                    if len(line) == 0 or line.isspace():
+                        debug("Empty init file: %s" % fname)
+                        return os.path.abspath(current_dir)
+                    return os.path.abspath(line.strip())
                 finally:
                     fh.close()
 
